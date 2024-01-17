@@ -1,0 +1,40 @@
+library(readxl)
+library(caret)
+library(tidyverse)
+library(writexl)
+data <-read_excel("~/PEAM/Lecture/DSI205/data.xlsx")
+
+train_test_split <- function(data, trainRatio=0.7) {
+  set.seed(42)
+  n <- nrow(data)
+  id <- sample(1:n, size=trainRatio*n)
+  train_data <- data[id, ]
+  test_data <- data[-id, ]
+  
+  list(train=train_data, test=test_data) 
+}
+
+splitData <- train_test_split(data, 0.7)
+train_data <- splitData[[1]]
+test_data <- splitData[[2]]
+
+control <- trainControl(method = "cv",
+                        number=5,
+                        verboseIter = TRUE)
+
+lm_model <- train(price~ ., data = train_data,
+                  method = "lm",
+                  trControl = control)
+
+
+impmat <- as.data.frame(varImp(lm_model)$importance)
+df <- data.frame(impmat)
+
+pred <- predict(lm_model, newdata = test_data)
+
+
+
+
+
+
+

@@ -1,0 +1,24 @@
+library(caret)
+library(tidyverse)
+library(readxl)
+##scaling
+
+data <-read_excel("~/PEAM/Lecture/DSI205/data.xlsx")
+scale_data <- preProcess(as.data.frame(data), method=c('range'))
+
+##train test split
+set.seed(420)
+split_data <- train_test_split(scale_data, trainRatio = 0.7)
+train_data <- split_data[[1]]
+test_data <- split_data[[2]]
+
+##train model
+control <- trainControl(method = "cv",
+                        number=5,
+                        verboseIter = TRUE)
+
+lm_model <- train(price~ ., data = train_data,
+                  method = "lm",
+                  trControl = control)
+
+
